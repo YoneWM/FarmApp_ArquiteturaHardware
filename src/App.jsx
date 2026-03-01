@@ -37,10 +37,10 @@ export default function App() {
         </div>
       </header>
 
-      {/* Main Layout */}
-      <div className="flex flex-1 p-6 gap-8 justify-center bg-linear-to-tr from-[#486F38] to-[#6a985b] border-red-600 border-3">
-        {/* Left Panel */}
-        <div className="mt-20 w-[50%] h-[60%] bg-(--secondary-color) rounded-2xl shadow-lg p-6 flex flex-col border-blue-600 border-3">
+      {/* Main Layout border-red-600 border-3*/}
+      <div className="flex flex-1 p-6 gap-8 justify-center bg-linear-to-tr from-[#486F38] to-[#6a985b]">
+        {/* Left Panel border-blue-600 border-3*/}
+        <div className="mt-20 w-[50%] h-[60%] bg-(--secondary-color) rounded-2xl shadow-lg p-6 flex flex-col">
           {/*Header */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
@@ -94,8 +94,8 @@ export default function App() {
           </div>
         </div>
 
-        {/*Right Panel */}
-        <div className="mt-20 w-[35%] flex flex-col gap-4 border-yellow-600 border-3 items-center">
+        {/*Right Panel border-yellow-600 border-3*/}
+        <div className="mt-20 w-[35%] flex flex-col gap-4  items-center">
           {/* Status Reservatorio */}
           <div className="min-[1300px]:relative w-[70%] bg-(--secondary-color) shadow-md rounded-2xl p-4 justify-center flex max-[1300px]:flex-col items-center min-[1300px]:gap-8 hover:shadow-lg border-gray-400">
             <div className="min-[1300px]:absolute min-[1300px]:left-4 flex flex-col items-center text-green-600 text-sm">{<Droplet className="w-5 h-5" />} Reservatório</div>
@@ -109,8 +109,8 @@ export default function App() {
             <span className="text-gray-700 text-md font-medium min-[1300px]:mr-auto">{}Ligada</span>
           </div>
 
-          {/* Botoes Abrir/Fechar Porta*/}
-          <div className="w-full flex border-3 justify-center gap-10">
+          {/* Botoes Abrir/Fechar Porta border-3*/}
+          <div className="w-full flex justify-center gap-10">
             <button className={
               `bg-(--secondary-color) shadow-md rounded-2xl p-4 flex items-center justify-start w-30 gap-2 hover:shadow-lg transition duration-250 ease-in-out ${!doorIsClosed?"bg-gray-400 text-gray-300":" hover:cursor-pointer "}`} 
               onClick={() => setDoorIsClosed(!doorIsClosed)} disabled={doorIsClosed?false:true}>
