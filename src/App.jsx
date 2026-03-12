@@ -96,11 +96,15 @@ export default function App() {
 
         {/*Right Panel border-yellow-600 border-3*/}
         <div className="mt-20 w-[35%] flex flex-col gap-4  items-center">
-          {/* Status Reservatorio */}
+          {/* Status Reservatorio 
+          
           <div className="min-[1300px]:relative w-[70%] bg-(--secondary-color) shadow-md rounded-2xl p-4 justify-center flex max-[1300px]:flex-col items-center min-[1300px]:gap-8 hover:shadow-lg border-gray-400">
             <div className="min-[1300px]:absolute min-[1300px]:left-4 flex flex-col items-center text-green-600 text-sm">{<Droplet className="w-5 h-5" />} Reservatório</div>
             <span className="text-gray-700 text-md font-medium min-[1300px]:mx-auto ">Acima do Nível</span>
           </div>
+
+          */}
+          
 
           {/*Status da Porta e Luzes*/}
           <div className="min-[1300px]:relative w-[70%] bg-(--secondary-color) shadow-md rounded-2xl p-4 justify-center flex max-[1300px]:flex-col items-center min-[1300px]:gap-8 hover:shadow-lg border-gray-400">
