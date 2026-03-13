@@ -1,6 +1,6 @@
 {
     "appId":"com.arq-hardware.farmapp",
-    "files":["src/electron","dist-react"],
+    "files":["src/electron","src/utils","dist-react"],
     "icon": "./desktopIcon.png",
     "mac": {
         "target": "dmg"
