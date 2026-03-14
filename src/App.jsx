@@ -26,10 +26,10 @@ export default function App() {
             <span>24 Feb 2026</span>
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <Thermometer className="w-5 h-5 text-red-500" />
             <span>28°C</span>
-          </div>
+          </div> */}
         </div>
 
         <div className="text-green-600 font-semibold">
