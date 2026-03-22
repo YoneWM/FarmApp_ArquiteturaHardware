@@ -1,5 +1,5 @@
 // Utility methods related to arduino control
 
-class ArduinoUtil{
-    
+export function checkConnection(){   
+    return true; 
 }

@@ -7,7 +7,7 @@ app.on('ready',()=>{
         width:1400,
         height:750,
         minWidth:1000,
-        minHeight:600,
+        minHeight:650,
         autoHideMenuBar:true
     })
 
