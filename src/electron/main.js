@@ -2,6 +2,24 @@ import {app, BrowserWindow, ipcMain} from 'electron'
 import path from 'path'
 import { isDev } from '../utils/util.js'
 import { SerialPort } from 'serialport'
+import { usb } from 'usb'
+
+async function checkArduino() {
+    const ports = await SerialPort.list()
+    const arduino = ports.find(port =>
+    port.manufacturer?.toLowerCase().includes("arduino") ||
+    port.manufacturer?.toLowerCase().includes("ftdi") ||
+    port.vendorId === "2341" ||
+    port.vendorId === "1A86" ||
+    port.vendorId === "10C4" ||
+    port.vendorId === "0403"
+    )
+
+    // console.log(ports);
+
+    // console.log(arduino);
+  return !!arduino
+}
 
 app.on('ready',()=>{
     const mainWindow = new BrowserWindow({
@@ -21,28 +39,23 @@ app.on('ready',()=>{
     } else{
         mainWindow.loadFile(path.join(app.getAppPath(),"/dist-react/index.html"))      
     }
+
+    usb.on('attach', async () => {
+    const isConnected = await checkArduino()
+    mainWindow.webContents.send('arduino-status', isConnected)
+    })
+
+    usb.on('detach', async () => {
+        const isConnected = await checkArduino()
+        mainWindow.webContents.send('arduino-status', isConnected)
+    })
 })
 
 ipcMain.handle("check-connection", async () => {
-  try {
-    const ports = await SerialPort.list()
-
-    console.log(ports);
-
-    const arduino = ports.find(port =>
-      port.manufacturer?.toLowerCase().includes("arduino") ||
-      port.manufacturer?.toLowerCase().includes("ftdi") ||
-      port.vendorId === "2341" ||
-      port.vendorId === "1A86" ||
-      port.vendorId === "10C4" ||
-      port.vendorId === "0403"
-    )
-
-    console.log(arduino);
-
-    return !!arduino
-  } catch (error) {
+    try {
+    return await checkArduino();
+    } catch (error) {
     console.error("Connection check failed:", error)
     return false
-  }
+    }
 })

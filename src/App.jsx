@@ -27,14 +27,20 @@ export default function App() {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
+    // verifica ao abrir
     async function check() {
       const connected = await checkConnection();
       setIsConnected(connected);
     }
     check();
+
+    // escuta mudanças automáticas
+    window.arduino.onStatusChange((isConnected) => {
+      setIsConnected(isConnected);
+    });
   }, []);
 
-  
+
 
   return (
     <div className="h-screen  flex flex-col font-sans">
