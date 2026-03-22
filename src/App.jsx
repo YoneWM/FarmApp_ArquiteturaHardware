@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect} from "react";
 import {
   Droplets,
   Sun,
@@ -24,6 +24,18 @@ export default function App() {
   const [lightCrrOFF, setLightCrrOFF] = useState(true);
   const [lightPltOFF, setLightPltOFF] = useState(true);
 
+  const [isConnected, setIsConnected] = useState(false);
+
+  useEffect(() => {
+    async function check() {
+      const connected = await checkConnection();
+      setIsConnected(connected);
+    }
+    check();
+  }, []);
+
+  
+
   return (
     <div className="h-screen  flex flex-col font-sans">
       {/*Top Bar */}
@@ -40,8 +52,8 @@ export default function App() {
           </div> */}
         </div>
 
-        <div className={`${checkConnection()?"text-green-600":"text-red-700"} font-semibold`}>
-          {checkConnection()?"● Arduino Conectado":"● Arduino Desconectado"}
+        <div className={`${isConnected?"text-green-600":"text-red-700"} font-semibold`}>
+          {isConnected?"● Arduino Conectado":"● Arduino Desconectado"}
         </div>
       </header>
 

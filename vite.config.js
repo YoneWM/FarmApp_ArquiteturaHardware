@@ -11,7 +11,10 @@ export default defineConfig({
   ],
   base:"./",
   build: {
-    outDir: "dist-react"
+    outDir: "dist-react",
+    rollupOptions: {
+      external: ["serialport"]
+    }
   },
   server: {
     port: 5123,
