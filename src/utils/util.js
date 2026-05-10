@@ -29,3 +29,19 @@ export function getTime(date = new Date()) {
     return date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 }
 
+// Intervalo de alimentacao, input Check function
+export function intervalCheck(input,mode = ""){
+    let textInp = input.replace(/\D/g, '').slice(0, 4);
+
+    if (mode=="enter"){
+        textInp = textInp.padStart(4, '0');
+
+        textInp = textInp.slice(0, 2) + ':' + textInp.slice(2);
+    }    
+
+    return textInp;
+}
+
+export function handleAlimtStatus(intervalo){
+    return intervalo=="00:00"?"OFF":"ON";
+}

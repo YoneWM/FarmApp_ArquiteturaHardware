@@ -1,7 +1,7 @@
-// Utility methods related to arduino control
+
 
 export async function checkConnection() {
-  return await window.arduino.checkConnection()
+  return await window.arduino.checkConnection();
 }
 
 export async function sendCommand(command) {

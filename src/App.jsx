@@ -1,4 +1,4 @@
-import { useState, useEffect} from "react";
+import { useState, useEffect, use} from "react";
 import {
   Droplets,
   Sun,
@@ -12,19 +12,20 @@ import {
   Apple,
   Edit,  
 } from "lucide-react";
-import {getDate,getTime} from "./utils/util"
+import {getDate,getTime,intervalCheck,handleAlimtStatus} from "./utils/util"
 import {checkConnection} from "./utils/arduinoUtil"
 
 export default function App() {
-  const [irrigation, setIrrigation] = useState(false);
-  const [irrigarAgora,setIrrigarAgora] = useState(false);
-  const [intervaloAlimentar,setIntervaloAlimentar] = useState(null);
-  const [doorIsClosed, setDoorIsClosed] = useState(true);
-  const [lightOFF, setLightOFF] = useState(true);
-  const [lightCrrOFF, setLightCrrOFF] = useState(true);
-  const [lightPltOFF, setLightPltOFF] = useState(true);
+  const [irrigation, setIrrigation] = useState(false); //irrigacao ON/OFF
+  const [irrigarAgora,setIrrigarAgora] = useState(false); //ativacao manual irrigacao
+  const [intervaloAlimentar,setIntervaloAlimentar] = useState("00:00"); //intervalo alimentacao
+  const [isEditInterv,setIsEditInterv] = useState(false); //ui control - intervalo input 
+  const [doorIsClosed, setDoorIsClosed] = useState(true); //porta celeiro
+  const [lightOFF, setLightOFF] = useState(true); //luz celeiro
+  const [lightCrrOFF, setLightCrrOFF] = useState(true); //luz corredor
+  const [lightPltOFF, setLightPltOFF] = useState(true); //luz plantacao
 
-  const [isConnected, setIsConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState(false); //status conexao arduino
 
   useEffect(() => {
     // verifica ao abrir
@@ -177,11 +178,37 @@ export default function App() {
             
             <div className="flex flex-col items-center text-green-600 text-sm"><Apple className="w-5 h-5 text-green-600" />Alimentacão</div>         
             
-            <span className="text-gray-700 font-medium ">00:00</span>
-            <span className="text-gray-700 font-medium">OFF</span> 
+            {!isEditInterv?
+              <span className="text-gray-700 font-medium w-11 text-center">{intervaloAlimentar}</span>:
+              <input className="text-gray-700 font-medium w-11 text-center bg-gray-50 border border-gray-500 rounded-sm"
+              autoFocus={true}
+              placeholder="00:00"
+              value={intervaloAlimentar}
+              onFocus={(e)=>e.target.select()}
+              onBlur={(e)=>{
+                let text = e.target.value;
+                let correctText = intervalCheck(text,"enter");
+                setIntervaloAlimentar(correctText);
+                setIsEditInterv(false);
+              }}  
+              onChange={(e)=>{                              
+                let text = e.target.value;
+                let correctText = intervalCheck(text);                
+                setIntervaloAlimentar(correctText);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.target.blur();
+                  setIsEditInterv(false);
+                }
+              }}
+              />
+            }
+            
+            <span className="text-gray-700 font-medium">{handleAlimtStatus(intervaloAlimentar)}</span> 
             
             <button className="flex gap-0.25 items-center text-green-800 p-1 rounded-md hover:cursor-pointer border hover:shadow-lg hover:bg-[#549778] hover:text-gray-100 transition duration-150 ease-in-out"
-              /*onClick={}*/
+              onClick={()=>setIsEditInterv(!isEditInterv)}
             >
               {<Edit className="w-5 h-5"/>}
               Editar Intervalo
