@@ -13,7 +13,6 @@ import {
   Edit,  
 } from "lucide-react";
 import {getDate,getTime,intervalCheck,handleAlimtStatus} from "./utils/util"
-import {checkConnection} from "./utils/arduinoUtil"
 
 export default function App() {
   const [irrigation, setIrrigation] = useState(false); //irrigacao ON/OFF
@@ -28,19 +27,28 @@ export default function App() {
   const [isConnected, setIsConnected] = useState(false); //status conexao arduino
 
   useEffect(() => {
-    // verifica ao abrir
     async function check() {
-      const connected = await checkConnection();
-      setIsConnected(connected);
+        const connected = await window.arduino.checkConnection()
+        setIsConnected(connected)
     }
-    check();
+    check()
 
-    // escuta mudanças automáticas
     window.arduino.onStatusChange((isConnected) => {
-      setIsConnected(isConnected);
-    });
-  }, []);
+        setIsConnected(isConnected)
+    })
 
+    window.arduino.onData((data) => {
+        if (data.event === "irrigacao") {
+            // atualiza estados conforme o JSON recebido
+            console.log(data) //Ex: { event: "irrigacao", type: "Auto", umidade1: 450, umidade2: 320 }
+        }
+    })
+
+    return () => {
+      window.arduino.offStatusChange()
+      window.arduino.offData()
+    }
+}, [])
 
 
   return (
