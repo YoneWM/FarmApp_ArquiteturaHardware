@@ -12,11 +12,10 @@ import {
   Apple,
   Edit,  
 } from "lucide-react";
-import {getDate,getTime,intervalCheck,handleAlimtStatus} from "./utils/util"
+import {getDate,getTime,intervalCheck,handleAlimtStatus, intervaloToMillis} from "./utils/util"
 
 export default function App() {
   const [irrigation, setIrrigation] = useState(false); //irrigacao ON/OFF
-  const [irrigarAgora,setIrrigarAgora] = useState(false); //ativacao manual irrigacao
   const [intervaloAlimentar,setIntervaloAlimentar] = useState("00:00"); //intervalo alimentacao
   const [isEditInterv,setIsEditInterv] = useState(false); //ui control - intervalo input 
   const [doorIsClosed, setDoorIsClosed] = useState(true); //porta celeiro
@@ -25,6 +24,9 @@ export default function App() {
   const [lightPltOFF, setLightPltOFF] = useState(true); //luz plantacao
 
   const [isConnected, setIsConnected] = useState(false); //status conexao arduino
+
+  //controle das últimas 3 irrigações
+  const [lastIrrigs,setLastIrrigs] = useState([]);
 
   useEffect(() => {
     async function check() {
@@ -38,11 +40,25 @@ export default function App() {
     })
 
     window.arduino.onData((data) => {
-        if (data.event === "irrigacao") {
-            // atualiza estados conforme o JSON recebido
-            console.log(data) //Ex: { event: "irrigacao", type: "Auto", umidade1: 450, umidade2: 320 }
-        }
-    })
+        // atualiza estados conforme o JSON recebido
+        if (data.event === "luzceleiroon") { setLightOFF(false); }
+        if (data.event === "luzceleirooff") { setLightOFF(true); }
+        if (data.event === "luzcorredoron") { setLightCrrOFF(false); }
+        if (data.event === "luzcorredoroff") { setLightCrrOFF(true); }
+        if (data.event === "luzplantacaoon") { setLightPltOFF(false); }
+        if (data.event === "luzplantacaooff") { setLightPltOFF(true); }
+        if (data.event === "porta" && data.status == true){ setDoorIsClosed(false)}
+        if (data.event === "porta" && data.status == false){ setDoorIsClosed(true)}
+
+        if(data.event === "irrigacao" && data.status == true){
+          setLastIrrigs(prev => {
+              const updated = [{ dia: getDate(), hora: getTime(), modo: data.type }, ...prev] //adiciona ultima irrig na lista
+              return updated.slice(0, 3) //somente os 3 primeiros elementos da lista sao mantidos
+            }
+          )          
+        } 
+      }
+    );
 
     return () => {
       window.arduino.offStatusChange()
@@ -87,14 +103,19 @@ export default function App() {
 
             <div className="flex gap-5">
               <button
-              onClick={() => setIrrigarAgora(!irrigarAgora)}
+              onClick={() => {
+                window.arduino.sendCommand("irrigacao");
+              }}
               className={`px-6 py-2 rounded-full font-medium transition bg-gray-400 text-gray-300 active:bg-[#1d7033] active:text-white`}
               >
                 Irrigar
               </button>
 
               <button
-                onClick={() => setIrrigation(!irrigation)}
+                onClick={() => {
+                  window.arduino.sendCommand("toggleirrig");
+                  setIrrigation(!irrigation)
+                }}
                 className={`px-6 py-2 rounded-full font-medium transition ${
                   irrigation
                     ? "bg-[#2E5894] text-white"
@@ -119,21 +140,22 @@ export default function App() {
                 </tr>
               </thead>
               <tbody className="text-gray-700">
-                <tr className="border-b hover:bg-amber-200">
-                  <td className="py-3">{getDate(1)}</td> {/*teste da funcao getDate*/}
-                  <td>{getTime()}</td> {/*teste da funcao getTime*/}
+                {/* <tr className="border-b hover:bg-amber-200">
+                  <td className="py-3">{getDate(1)}</td> 
+                  <td>{getTime()}</td> 
                   <td>Auto</td>
-                </tr>
-                <tr className="border-b hover:bg-amber-200">
-                  <td className="py-3">23/02/2026</td>
-                  <td>18:30</td>
-                  <td>Manual</td>
-                </tr>
-                <tr className="hover:bg-amber-200">
-                  <td className="py-3">23/02/2026</td>
-                  <td>06:45</td>
-                  <td>Auto</td>
-                </tr>
+                </tr> */}
+                {
+                  lastIrrigs.map(
+                    (value, index)=>(
+                      <tr className="border-b hover:bg-amber-200">
+                        <td className="py-3">{value.dia}</td> 
+                        <td>{value.hora}</td> 
+                        <td>{value.modo}</td>
+                      </tr>
+                    )
+                  )
+                }
               </tbody>
             </table>
           </div>    
@@ -162,7 +184,11 @@ export default function App() {
           <div className="w-full flex justify-center gap-10">
             <button className={
               `bg-(--secondary-color) shadow-md border-[#525252] border-2 rounded-2xl p-4 flex items-center justify-start w-30 h-12 gap-2 hover:shadow-lg transition duration-150 ease-in-out hover:cursor-pointer ${!doorIsClosed?"bg-red-800 text-white":""}`} 
-              onClick={() => setDoorIsClosed(!doorIsClosed)} >
+              onClick={() => {
+                window.arduino.sendCommand("porta");
+                // setDoorIsClosed(!doorIsClosed)
+                
+              }} >
 
               {doorIsClosed?
                 <DoorOpen className={`w-[1.3em] h-[1.3em]  ${!doorIsClosed?"text-white":"text-green-600"}`} />:
@@ -172,7 +198,11 @@ export default function App() {
 
             <button className={
               `bg-(--secondary-color) shadow-md border-[#525252] border-2 rounded-2xl p-4 flex items-center justify-start w-30 h-12 gap-2 hover:shadow-lg transition duration-150 ease-in-out hover:cursor-pointer ${!lightOFF?"bg-red-800 text-white":""}`} 
-              onClick={() => setLightOFF(!lightOFF)} >
+              onClick={() => {
+                if(lightOFF){ window.arduino.sendCommand("luzceleiroon") } else { window.arduino.sendCommand("luzceleirooff") }
+                
+                // setLightOFF(!lightOFF)
+                }} >
 
               {lightOFF?
                 <Lightbulb className={`w-5 h-5  ${!lightOFF?"text-white":"text-green-600"}`} />:
@@ -190,15 +220,25 @@ export default function App() {
               <span className="text-gray-700 font-medium w-11 text-center">{intervaloAlimentar}</span>:
               <input className="text-gray-700 font-medium w-11 text-center bg-gray-50 border border-gray-500 rounded-sm"
               autoFocus={true}
-              placeholder="00:00"
+              placeholder="0:00"
               value={intervaloAlimentar}
               onFocus={(e)=>e.target.select()}
-              onBlur={(e)=>{
-                let text = e.target.value;
-                let correctText = intervalCheck(text,"enter");
-                setIntervaloAlimentar(correctText);
-                setIsEditInterv(false);
-              }}  
+              onBlur={(e) => {
+                  let text = e.target.value;
+                  let correctText = intervalCheck(text, "enter");
+                  const millis = intervaloToMillis(correctText);
+
+                  if (correctText == "00:00") {
+                    window.arduino.sendCommand("alimentacaooff");
+                  } else if (millis > intervaloToMillis("00:07")) { //o tempo de abertura da porta de alim é 5000 milis
+                    window.arduino.sendCommand("alimentacaoon");
+                    window.arduino.sendCommand("intervalo:" + millis.toString());
+                  }
+
+                  setIntervaloAlimentar(correctText);
+                  setIsEditInterv(false);
+                }
+              } 
               onChange={(e)=>{                              
                 let text = e.target.value;
                 let correctText = intervalCheck(text);                
@@ -225,7 +265,7 @@ export default function App() {
 
           <button className={
               `group bg-(--secondary-color) shadow-md border-[#525252] border-2 rounded-2xl p-4 flex items-center justify-center w-40 h-12 gap-2 hover:shadow-lg transition duration-50 ease-in-out cursor-pointer active:bg-[#2E5894] active:text-white `} 
-              >
+              onClick={()=>{window.arduino.sendCommand("alimentacao");}}>
 
               {<Wheat className={`w-5 h-5 group-active:text-white text-green-600`} />} Alimentar
           </button>
@@ -235,7 +275,11 @@ export default function App() {
           <div className="w-full flex justify-center gap-10">
             <button className={
               `bg-(--secondary-color) shadow-md border-[#525252] border-2 rounded-2xl p-4 flex items-center justify-start w-40 h-20 gap-1 hover:shadow-lg transition duration-150 ease-in-out hover:cursor-pointer ${!lightCrrOFF?"bg-red-800 text-white":""}`} 
-              onClick={() => setLightCrrOFF(!lightCrrOFF)} >
+              onClick={() => {
+                  if(lightCrrOFF){ window.arduino.sendCommand("luzcorredoron") } else { window.arduino.sendCommand("luzcorredoroff") }
+                  // setLightCrrOFF(!lightCrrOFF)
+                }
+              } >
 
               {lightCrrOFF?
                 <Lightbulb className={`w-6 h-6  ${!lightCrrOFF?"text-white":"text-green-600"}`} />:
@@ -245,7 +289,11 @@ export default function App() {
 
             <button className={
               `bg-(--secondary-color) shadow-md border-[#525252] border-2 rounded-2xl p-4 flex items-center justify-start w-40 h-20 gap-1 hover:shadow-lg transition duration-150 ease-in-out hover:cursor-pointer ${!lightPltOFF?"bg-red-800 text-white":""}`} 
-              onClick={() => setLightPltOFF(!lightPltOFF)} >
+              onClick={() => {
+                  if(lightPltOFF){ window.arduino.sendCommand("luzplantacaoon") } else { window.arduino.sendCommand("luzplantacaooff") }
+                  // setLightPltOFF(!lightPltOFF)
+                }
+              } >
 
               {lightPltOFF?
                 <Lightbulb className={`w-6 h-6  ${!lightPltOFF?"text-white":"text-green-600"}`} />:

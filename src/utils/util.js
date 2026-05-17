@@ -37,6 +37,7 @@ export function intervalCheck(input,mode = ""){
         textInp = textInp.padStart(4, '0');
 
         textInp = textInp.slice(0, 2) + ':' + textInp.slice(2);
+
     }    
 
     return textInp;
@@ -44,4 +45,11 @@ export function intervalCheck(input,mode = ""){
 
 export function handleAlimtStatus(intervalo){
     return intervalo=="00:00"?"OFF":"ON";
+}
+
+export function intervaloToMillis(intervalo){
+    let textParts = intervalo.split(":");
+    let totalMillis =  parseInt(textParts[0])*60000 + parseInt(textParts[1])*1000;
+
+    return totalMillis;
 }

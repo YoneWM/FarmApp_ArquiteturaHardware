@@ -46,7 +46,7 @@ async function connectArduino() {
 }
 
 app.on('ready', async () => {
-    const mainWindow = new BrowserWindow({
+    mainWindow = new BrowserWindow({
         width: 1400,
         height: 750,
         minWidth: 1000,
@@ -94,6 +94,7 @@ ipcMain.handle('arduino-send', async (_, command) => {
     if (!port || !port.isOpen) {
         throw new Error('Arduino não conectado')
     }
+    console.log('Comando:', command)
     return new Promise((resolve, reject) => {
         port.write(command + '\n', (err) => {
             if (err) reject(err)
