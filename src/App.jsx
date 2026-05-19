@@ -23,6 +23,10 @@ export default function App() {
   const [lightCrrOFF, setLightCrrOFF] = useState(true); //luz corredor
   const [lightPltOFF, setLightPltOFF] = useState(true); //luz plantacao
 
+  const [ldrCeleiroAuto,setLdrCeleiroAuto] = useState(false); //controle da luz auto do celeiro 
+  const [ldrCorredorAuto,setLdrCorredorAuto] = useState(false); //controle da luz auto do corredor 
+  const [ldrPlantacaoAuto,setLdrPlantacaoAuto] = useState(false); //controle da luz auto da plantacao 
+
   const [isConnected, setIsConnected] = useState(false); //status conexao arduino
 
   //controle das últimas 3 irrigações
@@ -89,78 +93,121 @@ export default function App() {
       </header>
 
       {/* Main Layout border-red-600 border-3*/}
-      <div className="flex flex-1 gap-8 justify-center items-center bg-linear-to-tr from-[#486F38] to-[#6a985b]">
+      <div className="flex flex-1 gap-8 justify-center items-center bg-linear-to-tr from-[#486F38] to-[#6a985b] ">
         {/* Left Panel border-blue-600 border-3*/}
-        <div className=" w-[50%] h-[60%] bg-(--secondary-color) rounded-2xl shadow-lg p-6 flex flex-col ">
-          {/*Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <Droplets className="w-6 h-6 text-blue-500" />
-              <h2 className="text-xl font-semibold text-gray-700">
-                Irrigação
-              </h2>
-            </div>
+        <div className="flex flex-col justify-center w-[50%] h-[80%] items-center ">
+          <div className=" w-full h-[75%] bg-(--secondary-color) rounded-2xl shadow-lg p-6 flex flex-col mb-5">
+            {/*Header */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <Droplets className="w-6 h-6 text-blue-500" />
+                <h2 className="text-xl font-semibold text-gray-700">
+                  Irrigação
+                </h2>
+              </div>
 
-            <div className="flex gap-5">
-              <button
-              onClick={() => {
-                window.arduino.sendCommand("irrigacao");
-              }}
-              className={`px-6 py-2 rounded-full font-medium transition bg-gray-400 text-gray-300 active:bg-[#1d7033] active:text-white`}
-              >
-                Irrigar
-              </button>
-
-              <button
+              <div className="flex gap-5">
+                <button
                 onClick={() => {
-                  window.arduino.sendCommand("toggleirrig");
-                  setIrrigation(!irrigation)
+                  window.arduino.sendCommand("irrigacao");
                 }}
-                className={`px-6 py-2 rounded-full font-medium transition ${
-                  irrigation
-                    ? "bg-[#2E5894] text-white"
-                    : "bg-gray-400 text-gray-300"
-                }`}
+                className={`px-6 py-2 rounded-full font-medium transition bg-gray-400 text-gray-300 active:bg-[#1d7033] active:text-white`}
                 >
-                {irrigation ? "ON" : "OFF"}
-              </button>
-            </div>
-            
-          </div>
+                  Irrigar
+                </button>
 
-          {/*TABLE - Irrigation*/}          
-          <div className="flex-1 overflow-auto">
-            <table className="w-full text-center border-collapse">
-              {/*Example DATAo */}
-              <thead>
-                <tr className="text-gray-500 text-sm border-b">
-                  <th className="py-3 w-40">Data</th>
-                  <th className=" w-40">Hora</th>
-                  <th className=" w-40">Modo</th>
-                </tr>
-              </thead>
-              <tbody className="text-gray-700">
-                {/* <tr className="border-b hover:bg-amber-200">
-                  <td className="py-3">{getDate(1)}</td> 
-                  <td>{getTime()}</td> 
-                  <td>Auto</td>
-                </tr> */}
-                {
-                  lastIrrigs.map(
-                    (value, index)=>(
-                      <tr className="border-b hover:bg-amber-200">
-                        <td className="py-3">{value.dia}</td> 
-                        <td>{value.hora}</td> 
-                        <td>{value.modo}</td>
-                      </tr>
+                <button
+                  onClick={() => {
+                    window.arduino.sendCommand("toggleirrig");
+                    setIrrigation(!irrigation)
+                  }}
+                  className={`px-6 py-2 rounded-full font-medium transition ${
+                    irrigation
+                      ? "bg-[#2E5894] text-white"
+                      : "bg-gray-400 text-gray-300"
+                  }`}
+                  >
+                  {irrigation ? "ON" : "OFF"}
+                </button>
+              </div>
+              
+            </div>
+
+            {/*TABLE - Irrigation*/}          
+            <div className="flex-1 overflow-auto">
+              <table className="w-full text-center border-collapse">
+                {/*Example DATAo */}
+                <thead>
+                  <tr className="text-gray-500 text-sm border-b">
+                    <th className="py-3 w-40">Data</th>
+                    <th className=" w-40">Hora</th>
+                    <th className=" w-40">Modo</th>
+                  </tr>
+                </thead>
+                <tbody className="text-gray-700">
+                  {/* <tr className="border-b hover:bg-amber-200">
+                    <td className="py-3">{getDate(1)}</td> 
+                    <td>{getTime()}</td> 
+                    <td>Auto</td>
+                  </tr> */}
+                  {
+                    lastIrrigs.map(
+                      (value, index)=>(
+                        <tr className="border-b hover:bg-amber-200">
+                          <td className="py-3">{value.dia}</td> 
+                          <td>{value.hora}</td> 
+                          <td>{value.modo}</td>
+                        </tr>
+                      )
                     )
-                  )
-                }
-              </tbody>
-            </table>
-          </div>    
+                  }
+                </tbody>
+              </table>
+
+              
+            </div>    
+          </div>
+          {/* controles das iluminações automáticas*/}
+          <div className="flex gap-5">
+            <button className={`bg-(--secondary-color) shadow-md border-[#525252] border-2 rounded-2xl p-4 flex items-center justify-start h-12 gap-2 hover:shadow-lg transition duration-150 ease-in-out hover:cursor-pointer ${!ldrCeleiroAuto?"bg-red-800 text-white":""}`}
+            onClick={()=>{
+              if(ldrCeleiroAuto){ //auto ligado -> deve desligar
+                setLdrCeleiroAuto(!ldrCeleiroAuto)
+                window.arduino.sendCommand("ldrceleiroautooff")
+              } else{
+                setLdrCeleiroAuto(!ldrCeleiroAuto)
+                window.arduino.sendCommand("ldrceleiroautoon")
+              }
+            }}
+            >Luz Celeiro Auto {ldrCeleiroAuto?"ON":"OFF"}</button>
+
+            <button className={`bg-(--secondary-color) shadow-md border-[#525252] border-2 rounded-2xl p-4 flex items-center justify-start h-12 gap-2 hover:shadow-lg transition duration-150 ease-in-out hover:cursor-pointer ${!ldrCorredorAuto?"bg-red-800 text-white":""}`}
+            onClick={()=>{
+              if(ldrCorredorAuto){ //auto ligado -> deve desligar
+                setLdrCorredorAuto(!ldrCorredorAuto)
+                window.arduino.sendCommand("ldrcorredorautooff")
+              } else{
+                setLdrCorredorAuto(!ldrCorredorAuto)
+                window.arduino.sendCommand("ldrcorredorautoon")
+              }
+            }}
+            >Luz Corredor Auto {ldrCorredorAuto?"ON":"OFF"}</button>
+
+            <button className={`bg-(--secondary-color) shadow-md border-[#525252] border-2 rounded-2xl p-4 flex items-center justify-start h-12 gap-2 hover:shadow-lg transition duration-150 ease-in-out hover:cursor-pointer ${!ldrPlantacaoAuto?"bg-red-800 text-white":""}`}
+            onClick={()=>{
+              if(ldrPlantacaoAuto){ //auto ligado -> deve desligar
+                setLdrPlantacaoAuto(!ldrPlantacaoAuto)
+                window.arduino.sendCommand("ldrplantacaoautooff")
+              } else{
+                setLdrPlantacaoAuto(!ldrPlantacaoAuto)
+                window.arduino.sendCommand("ldrplantacaoautoon")
+              }
+            }}
+            >Luz Plantação Auto ON</button>
+          </div>
         </div>
 
+        
         {/*Right Panel border-yellow-600 border-3*/}
         <div className="w-[35%] flex flex-col gap-3  items-center">
           {/* Status Reservatorio 
@@ -214,7 +261,7 @@ export default function App() {
           {/*timer para alimentacao, botao para configurar tempo e incluir botao para forçar alimentaçao */}
           <div className="min-[1130px]:w-full max-[1130px]:w-[80%] bg-(--secondary-color) shadow-md rounded-2xl p-4 flex max-[1130px]:flex-col items-center justify-between">
             
-            <div className="flex flex-col items-center text-green-600 text-sm"><Apple className="w-5 h-5 text-green-600" />Alimentacão</div>         
+            <div className="flex flex-col items-center text-green-600 text-sm"><Apple className="w-5 h-5 text-green-600" />Alimentacão <span>Auto</span> </div>         
             
             {!isEditInterv?
               <span className="text-gray-700 font-medium w-11 text-center">{intervaloAlimentar}</span>:
@@ -228,14 +275,15 @@ export default function App() {
                   let correctText = intervalCheck(text, "enter");
                   const millis = intervaloToMillis(correctText);
 
-                  if (correctText == "00:00") {
+                  if (correctText == "00:00" || millis<=intervaloToMillis("00:07")) {
                     window.arduino.sendCommand("alimentacaooff");
-                  } else if (millis > intervaloToMillis("00:07")) { //o tempo de abertura da porta de alim é 5000 milis
+                    setIntervaloAlimentar("00:00");
+                  } else { //o tempo de abertura da porta de alim é 5000 milis
                     window.arduino.sendCommand("alimentacaoon");
                     window.arduino.sendCommand("intervalo:" + millis.toString());
+                    setIntervaloAlimentar(correctText);
                   }
 
-                  setIntervaloAlimentar(correctText);
                   setIsEditInterv(false);
                 }
               } 
