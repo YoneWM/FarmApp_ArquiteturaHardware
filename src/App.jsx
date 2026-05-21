@@ -203,7 +203,7 @@ export default function App() {
                 window.arduino.sendCommand("ldrplantacaoautoon")
               }
             }}
-            >Luz Plantação Auto ON</button>
+            >Luz Plantação Auto {ldrPlantacaoAuto?"ON":"OFF"}</button>
           </div>
         </div>
 
